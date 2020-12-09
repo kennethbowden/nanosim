@@ -5,12 +5,26 @@ This utilizes a Dockerized version of NanoSim v3.0 to perform metagenomics data 
 NanoSim Reference:
 Chen Yang, Justin Chu, René L Warren, and Inanç Birol; NanoSim: nanopore sequence read simulator based on statistical characterization. GigaScience, Volume 6, Issue 4, April 2017, gix010, https://doi.org/10.1093/gigascience/gix010
 
-# Read Analysis 
+## Dependencies
+![Python}](https://img.shields.io/pypi/pyversions/py)  
+Python packages:  
+* six  
+* numpy (Tested with version 1.10.1 or above)
+* HTSeq (Tested with version 0.9.1)  
+* Pysam (Tested with version 0.13)  
+* scipy (Tested with verson 1.0.0)  
+* scikit-learn (Tested with version 0.20.0)
 
-metagenome mode If you are interested in simulating ONT metagenome reads, you need to run the characterization stage in "metagenome" mode with following options. It takes a metagenome list with paths pointing to each genome and a training read set in FASTA or FASTQ format as input and aligns these reads to the reference using minimap2. User can also provide their own alignment file in SAM formats. If the SAM file is provided, make sure that is MD flag in the SAM file. The output of this is a bunch of profiles which you should use in simulation stage.
+minimap2 (Tested with version 2.10 and 2.17)  
+LAST (Tested with version 581 and 916)  
 
-metagenome mode usage:
+## Read Analysis 
 
+**metagenome mode**
+If you are interested in simulating ONT metagenome reads, you need to run the characterization stage in "metagenome" mode with following options. It takes a metagenome list with paths pointing to each genome and a training read set in FASTA or FASTQ format as input and aligns these reads to the reference using minimap2. User can also provide their own alignment file in SAM formats. If the SAM file is provided, make sure that is MD flag in the SAM file. The output of this is a bunch of profiles which you should use in simulation stage.
+
+__metagenome mode usage:__
+```
 usage: read_analysis.py metagenome [-h] -i READ -gl GENOME_LIST [-ga G_ALNM]
                                    [-o OUTPUT] [-c] [-q] [--no_model_fit]
                                    [-t NUM_THREADS]
@@ -39,14 +53,15 @@ optional arguments:
   -t NUM_THREADS, --num_threads NUM_THREADS
                         Number of threads for alignment and model fitting
                         (Default = 1)
+```
 
-# Simulation
+## Simulation
 
-metagenome mode
-If you are interested in simulating ONT metagenome reads, you need to run the simulation stage in "metagenome" mode with following options. We have provided sample config files for users to construct their own -gl, -a, and -dl config files correctly.
+**metagenome mode**  
+If you are interested in simulating ONT metagenome reads, you need to run the simulation stage in "metagenome" mode with following options. We have provided sample config files for users to construct their own `-gl`, `-a`, and `-dl` config files correctly.
 
-metagenome mode usage:
-
+__metagenome mode usage:__
+```
 usage: simulator.py metagenome [-h] -gl GENOME_LIST -a ABUN -dl DNA_TYPE_LIST
                                [-c MODEL_PREFIX] [-o OUTPUT] [-max MAX_LEN]
                                [-min MIN_LEN] [-med MEDIAN_LEN] [-sd SD_LEN]
@@ -110,30 +125,35 @@ optional arguments:
   --chimeric            Simulate chimeric reads
   -t NUM_THREADS, --num_threads NUM_THREADS
                         Number of threads for simulation (Default = 1)
-sample abundance file for metagenome_simulation
+```
 
-The abundance file is a tsv file, with rows representing the abundance of each sample and columns representing each sample. Each column (except for the first row) needs to sum up to 100, because the total abundance of each sample needs to be 100.
+__sample abundance file for metagenome_simulation__  
 
-The first row is header row to specify the number of reads in each sample. The format of the first row is:
-Size total_reads_in_sample1 total_reads_in_sample2 ...
-The following rows are in the format as:
-Species abundance_in_sample1 abundance_in_sample2 ...
+The abundance file is a tsv file, with rows representing the abundance of each sample and columns representing each sample. Each column (except for the first row) needs to sum up to 100, because the total abundance of each sample needs to be 100.  
 
-Size	200000	100
-Bacillus subtilis	12	0.89
-Cryptococcus neoformans	2	0.00089
-Enterococcus faecalis	12	0.00089
-Escherichia coli	12	0.089
-Lactobacillus fermentum	12	0.0089
-Listeria monocytogenes	12	89.1
-Pseudomonas aeruginosa	12	8.9
-Saccharomyces cerevisiae	2	0.89
-Salmonella enterica	12	0.089
-Staphylococcus aureus	12	0.000089
-In the above example, there are two samples. The first sample will contain 20,0000 reads, while the second sample will contain 100 reads. The abundances in sample 1 and 2 are as shown in th table, and both of them add up to 100.
+The first row is header row to specify the number of reads in each sample. The format of the first row is:  
+`Size  total_reads_in_sample1  total_reads_in_sample2  ...`  
+The following rows are in the format as:  
+`Species abundance_in_sample1  abundance_in_sample2  ...`    
 
-* Notice: the use of max_len and min_len in genome mode will affect the read length distributions. If the range between max_len and min_len is too small, the program will run slowlier accordingly.
+| Size | 200000 | 100 |  
+| ------------- |:-------------:| -----:|  
+| Bacillus subtilis | 12 | 0.89 |  
+| Cryptococcus neoformans | 2 | 0.00089 |  
+| Enterococcus faecalis | 12 | 0.00089 |  
+| Escherichia coli|	12 | 0.089 |  
+| Lactobacillus fermentum |	12 |	0.0089 |  
+| Listeria monocytogenes |	12 |	89.1 |  
+| Pseudomonas aeruginosa	| 12 |	8.9 |  
+| Saccharomyces cerevisiae |	2 |	0.89 |  
+| Salmonella enterica	| 12 |	0.089 |  
+| Staphylococcus aureus	| 12 |	0.000089 |  
 
-* Notice: the transcript name in the expression tsv file and the ones in th polyadenylated transcript list has to be consistent with the ones in the reference transcripts, otherwise the tool won't recognize them and don't know where to find them to extract reads for simulation.
 
-* Notice: the species name in the genome list file, dna type file, and abundance file has to be consistent. The chromosome names in the dna type file has to match the ones in the reference genomes.
+In the above example, there are two samples. The first sample will contain 20,0000 reads, while the second sample will contain 100 reads. The abundances in sample 1 and 2 are as shown in th table, and both of them add up to 100.  
+
+\* Notice: the use of `max_len` and `min_len` in genome mode will affect the read length distributions. If the range between `max_len` and `min_len` is too small, the program will run slowlier accordingly.  
+
+\* Notice: the transcript name in the expression tsv file and the ones in th polyadenylated transcript list has to be consistent with the ones in the reference transcripts, otherwise the tool won't recognize them and don't know where to find them to extract reads for simulation.
+
+\* Notice: the species name in the genome list file, dna type file, and abundance file has to be consistent. The chromosome names in the dna type file has to match the ones in the reference genomes. 
